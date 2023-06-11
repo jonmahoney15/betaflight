@@ -197,6 +197,7 @@ typedef enum {
     OSD_LIDAR_DIST,
     OSD_CUSTOM_SERIAL_TEXT,
     OSD_BATTERY_PROFILE_NAME,
+    OSD_FS_MODE,
     OSD_ITEM_COUNT // MUST BE LAST
 } osd_items_e;
 

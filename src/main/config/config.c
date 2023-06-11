@@ -366,6 +366,14 @@ static void validateAndFixConfig(void)
         if (isModeActivationConditionPresent(BOXGPSRESCUE)) {
             removeModeActivationCondition(BOXGPSRESCUE);
         }
+
+        if (isModeActivationConditionPresent(BOXFAILSAFERESCUE)) {
+            removeModeActivationCondition(BOXFAILSAFERESCUE);
+        }
+
+        if (isModeActivationConditionPresent(BOXFAILSAFEDROP)) {
+            removeModeActivationCondition(BOXFAILSAFEDROP);
+        }
     }
 
 #if defined(USE_ESC_SENSOR)

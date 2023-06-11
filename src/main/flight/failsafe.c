@@ -255,6 +255,13 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
         beeperMode = BEEPER_RX_LOST;
     }
 
+#ifdef USE_GPS_RESCUE
+    if (IS_RC_MODE_ACTIVE(BOXFAILSAFERESCUE)) {
+        failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_GPS_RESCUE;
+    } else if (IS_RC_MODE_ACTIVE(BOXFAILSAFEDROP)) {
+        failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_DROP_IT;
+    }
+#endif
     bool reprocessState;
 
     do {

@@ -102,6 +102,8 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
     { .boxId = BOXREADY, .boxName = "READY", .permanentId = 53},
     { .boxId = BOXLAPTIMERRESET, .boxName = "LAP TIMER RESET", .permanentId = 54},
     { .boxId = BOXCHIRP, .boxName = "CHIRP", .permanentId = 55}
+    { .boxId = BOXFAILSAFERESCUE, .boxName = "FS: RESCUE", .permanentId = 56 },
+    { .boxId = BOXFAILSAFEDROP, .boxName = "FS: DROP", .permanentId = 57 },
 };
 
 // mask of enabled IDs, calculated on startup based on enabled features. boxId_e is used as bit index
@@ -250,6 +252,8 @@ void initActiveBoxIds(void)
 #ifdef USE_GPS_RESCUE
         if (!featureIsEnabled(FEATURE_3D) && !isFixedWing()) {
             BME(BOXGPSRESCUE);
+            BME(BOXFAILSAFERESCUE);
+            BME(BOXFAILSAFEDROP);
         }
 #endif
         BME(BOXBEEPGPSCOUNT);

@@ -103,6 +103,27 @@ void deactivateBoxFailsafe()
     rcModeUpdate(&newMask);
 }
 
+void activateBoxFailsafeRescue()
+{
+    boxBitmask_t newMask;
+    bitArraySet(&newMask, BOXFAILSAFERESCUE);
+    rcModeUpdate(&newMask);
+}
+
+void activateBoxFailsafeDrop()
+{
+    boxBitmask_t newMask;
+    bitArraySet(&newMask, BOXFAILSAFEDROP);
+    rcModeUpdate(&newMask);
+}
+
+void deactivateBoxFailsafeModes()
+{
+    boxBitmask_t newMask;
+    memset(&newMask, 0, sizeof(newMask));
+    rcModeUpdate(&newMask);
+}
+
 //
 // Stepwise tests
 //
@@ -708,6 +729,96 @@ TEST(FlightFailsafeTest, TestFailsafeNotActivatedWhenDisarmedAndRXLossIsDetected
 
     // but now arming is possible
     EXPECT_FALSE(isArmingDisabled());
+}
+
+/****************************************************************************************/
+TEST(FlightFailsafeTest, TestFailsafeProcedureModeRescueSwitch)
+{
+    // given
+    configureFailsafe();
+    ENABLE_ARMING_FLAG(ARMED);
+    resetCallCounters();
+    failsafeStartMonitoring();
+
+    // and
+    failsafeConfigMutable()->failsafe_switch_mode = FAILSAFE_SWITCH_MODE_STAGE1;
+    failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_DROP_IT; // default
+
+    sysTickUptime = 0;
+    failsafeOnValidDataReceived();
+    sysTickUptime += 3000;
+
+    // when - activate rescue mode switch
+    activateBoxFailsafeRescue();
+    failsafeUpdateState();
+
+    // then - procedure should be changed to GPS_RESCUE
+    EXPECT_EQ(FAILSAFE_PROCEDURE_GPS_RESCUE, failsafeConfig()->failsafe_procedure);
+    EXPECT_FALSE(failsafeIsActive()); // not in failsafe yet, just mode switch
+
+    // given - deactivate rescue mode
+    deactivateBoxFailsafeModes();
+    failsafeUpdateState();
+
+    // then - procedure should remain at last set value (rescue)
+    // (the mode switch only changes procedure, doesn't restore old value)
+    EXPECT_EQ(FAILSAFE_PROCEDURE_GPS_RESCUE, failsafeConfig()->failsafe_procedure);
+}
+
+/****************************************************************************************/
+TEST(FlightFailsafeTest, TestFailsafeProcedureModeDropSwitch)
+{
+    // given
+    configureFailsafe();
+    ENABLE_ARMING_FLAG(ARMED);
+    resetCallCounters();
+    failsafeStartMonitoring();
+
+    // and
+    failsafeConfigMutable()->failsafe_switch_mode = FAILSAFE_SWITCH_MODE_STAGE1;
+    failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_AUTO_LANDING; // default
+
+    sysTickUptime = 0;
+    failsafeOnValidDataReceived();
+    sysTickUptime += 3000;
+
+    // when - activate drop mode switch
+    activateBoxFailsafeDrop();
+    failsafeUpdateState();
+
+    // then - procedure should be changed to DROP_IT
+    EXPECT_EQ(FAILSAFE_PROCEDURE_DROP_IT, failsafeConfig()->failsafe_procedure);
+    EXPECT_FALSE(failsafeIsActive()); // not in failsafe yet, just mode switch
+}
+
+/****************************************************************************************/
+TEST(FlightFailsafeTest, TestFailsafeProcedureModeRescueOverridesDrop)
+{
+    // given
+    configureFailsafe();
+    ENABLE_ARMING_FLAG(ARMED);
+    resetCallCounters();
+    failsafeStartMonitoring();
+
+    // and
+    failsafeConfigMutable()->failsafe_switch_mode = FAILSAFE_SWITCH_MODE_STAGE1;
+    failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_AUTO_LANDING;
+
+    sysTickUptime = 0;
+    failsafeOnValidDataReceived();
+    sysTickUptime += 3000;
+
+    // when - activate both rescue and drop (rescue should take precedence)
+    {
+        boxBitmask_t newMask;
+        bitArraySet(&newMask, BOXFAILSAFERESCUE);
+        bitArraySet(&newMask, BOXFAILSAFEDROP);
+        rcModeUpdate(&newMask);
+    }
+    failsafeUpdateState();
+
+    // then - rescue takes precedence (first in else-if chain)
+    EXPECT_EQ(FAILSAFE_PROCEDURE_GPS_RESCUE, failsafeConfig()->failsafe_procedure);
 }
 
 // STUBS
