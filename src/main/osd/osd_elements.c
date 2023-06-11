@@ -150,6 +150,7 @@
 #include "flight/imu.h"
 #include "flight/mixer.h"
 #include "flight/pid.h"
+#include "flight/failsafe.h"
 
 #include "io/gps.h"
 #include "io/vtx.h"
@@ -1183,6 +1184,21 @@ static void osdElementEfficiency(osdElementParms_t *element)
         tfp_sprintf(element->buff, "----%c/%c", SYM_MAH, unitSymbol);
     }
 }
+
+static void osdElementFailsafeMode(osdElementParms_t *element)
+{
+    uint8_t failsafeProcedure = failsafeConfig()->failsafe_procedure;
+    
+    if(failsafeProcedure == FAILSAFE_PROCEDURE_DROP_IT) {
+        strcpy(element->buff, "FS: DROP");
+    } else if(failsafeProcedure == FAILSAFE_PROCEDURE_AUTO_LANDING) {
+        strcpy(element->buff, "FS: AUTOLAND");
+#ifdef USE_GPS_RESCUE 
+    } else if (failsafeProcedure == FAILSAFE_PROCEDURE_GPS_RESCUE) {
+        strcpy(element->buff, "FS: RESCUE");
+#endif
+    } 
+}
 #endif // USE_GPS
 
 #ifdef USE_GPS_LAP_TIMER
@@ -1805,6 +1821,7 @@ static const uint8_t osdElementDisplayOrder[] = {
     OSD_DISARMED,
     OSD_NUMERICAL_HEADING,
     OSD_READY_MODE,
+    OSD_FS_MODE,
 #ifdef USE_VARIO
     OSD_NUMERICAL_VARIO,
 #endif
@@ -1985,12 +2002,13 @@ const osdElementDrawFn osdElementDrawFunction[OSD_ITEM_COUNT] = {
     [OSD_RC_CHANNELS]             = osdElementRcChannels,
 #ifdef USE_GPS
     [OSD_EFFICIENCY]              = osdElementEfficiency,
+    [OSD_FS_MODE]                 = osdElementFailsafeMode,
 #endif
 #ifdef USE_GPS_LAP_TIMER
     [OSD_GPS_LAP_TIME_CURRENT]    = osdElementGpsLapTimeCurrent,
     [OSD_GPS_LAP_TIME_PREVIOUS]   = osdElementGpsLapTimePrevious,
     [OSD_GPS_LAP_TIME_BEST3]      = osdElementGpsLapTimeBest3,
-#endif // GPS_LAP_TIMER
+#endif 
 #ifdef USE_PERSISTENT_STATS
     [OSD_TOTAL_FLIGHTS]           = osdElementTotalFlights,
 #endif

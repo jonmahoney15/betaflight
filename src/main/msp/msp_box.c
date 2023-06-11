@@ -97,11 +97,13 @@ static const box_t boxes[CHECKBOX_ITEM_COUNT] = {
     { .boxId = BOXACROTRAINER, .boxName = "ACRO TRAINER", .permanentId = 47 },
     { .boxId = BOXVTXCONTROLDISABLE, .boxName = "VTX CONTROL DISABLE", .permanentId = 48},
     { .boxId = BOXLAUNCHCONTROL, .boxName = "LAUNCH CONTROL", .permanentId = 49 },
-    { .boxId = BOXMSPOVERRIDE, .boxName = "MSP OVERRIDE", .permanentId = 50},
-    { .boxId = BOXSTICKCOMMANDDISABLE, .boxName = "STICK COMMANDS DISABLE", .permanentId = 51},
-    { .boxId = BOXBEEPERMUTE, .boxName = "BEEPER MUTE", .permanentId = 52},
-    { .boxId = BOXREADY, .boxName = "READY", .permanentId = 53},
-    { .boxId = BOXLAPTIMERRESET, .boxName = "LAP TIMER RESET", .permanentId = 54},
+    { .boxId = BOXMSPOVERRIDE, .boxName = "MSP OVERRIDE", .permanentId = 50 },
+    { .boxId = BOXSTICKCOMMANDDISABLE, .boxName = "STICK COMMANDS DISABLE", .permanentId = 51 },
+    { .boxId = BOXBEEPERMUTE, .boxName = "BEEPER MUTE", .permanentId = 52 },
+    { .boxId = BOXREADY, .boxName = "READY", .permanentId = 53 },
+    { .boxId = BOXLAPTIMERRESET, .boxName = "LAP TIMER RESET", .permanentId = 54 },
+    { .boxId = BOXFAILSAFERESCUE, .boxName = "FS: RESCUE", .permanentId = 55 },
+    { .boxId = BOXFAILSAFEDROP, .boxName = "FS: DROP", .permanentId = 56 },
 };
 
 // mask of enabled IDs, calculated on startup based on enabled features. boxId_e is used as bit index
@@ -227,6 +229,8 @@ void initActiveBoxIds(void)
 #ifdef USE_GPS_RESCUE
         if (!featureIsEnabled(FEATURE_3D) && !isFixedWing()) {
             BME(BOXGPSRESCUE);
+            BME(BOXFAILSAFERESCUE);
+            BME(BOXFAILSAFEDROP);
         }
 #endif
         BME(BOXBEEPGPSCOUNT);

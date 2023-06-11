@@ -245,6 +245,12 @@ FAST_CODE_NOINLINE void failsafeUpdateState(void)
     if (IS_RC_MODE_ACTIVE(BOXFAILSAFE) && (failsafeConfig()->failsafe_switch_mode == FAILSAFE_SWITCH_MODE_STAGE2)) {
         // Force immediate stage 2 responses if mode is failsafe stage2 to emulate immediate loss of signal without waiting
         receivingRxData = false;
+#ifdef USE_GPS_RESCUE    
+    } else if (IS_RC_MODE_ACTIVE(BOXFAILSAFERESCUE)) {
+	    failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_GPS_RESCUE;
+    } else if (IS_RC_MODE_ACTIVE(BOXFAILSAFEDROP)) {
+	    failsafeConfigMutable()->failsafe_procedure = FAILSAFE_PROCEDURE_DROP_IT;
+#endif
     }
 
     // Beep RX lost only if we are not seeing data and are armed or have been armed earlier
